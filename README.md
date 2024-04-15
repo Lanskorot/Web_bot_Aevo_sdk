@@ -1,6 +1,11 @@
 # Aevo Trading bot
 Simple example of Trading Bot for [Aevo CEX](https://app.aevo.xyz/r/Purring-Charm-Thaler)
-How to use: 
+- How to use: https://medium.com/@NewProject1/developing-trading-bot-for-airdrop-aevo-xyz-1ac8b4fbbf94
+
+```
+pip3 install -r requirements.txt
+python3 trade.py
+```
 
 ## Keep in touch!
 
