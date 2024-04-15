@@ -11,7 +11,7 @@ async def main():
         wallet_address="", # Paste your wallet address here
         api_key="", # Paste your api key here
         api_secret="", # Paste your api secret here
-        env="",
+        env="mainnet",
     )
 
     if not aevo.signing_key:
