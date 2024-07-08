@@ -1,53 +1,3 @@
-"""
-Основная стратегия: Взаимная  на платформе Aevo
-
-Описание:
-Эта стратегия использует функционал торговой платформы Aevo для выполнения различных торговых операций, таких как покупка и продажа рыночных и лимитных ордеров, а также закрытие всех открытых позиций и получение информации о счетах и позициях.
-
-Основные компоненты стратегии:
-1. Выполнение рыночных ордеров на long и short.
-2. Закрытие всех открытых позиций.
-3. Получение информации о балансе счета и открытых позициях.
-
-Параметры:
-- signing_key: Ключ для подписи транзакций.
-- wallet_address: Адрес кошелька.
-- api_key: API ключ для доступа к платформе Aevo.
-- api_secret: Секретный API ключ для доступа к платформе Aevo.
-- env: Среда выполнения (например, testnet для тестирования).
-
-Основные функции:
-
-1. buy_market(instrument_id, quantity):
-   - Создает рыночный ордер на покупку указанного количества инструмента.
-   - Возвращает сообщение о результате выполнения.
-
-2. sell_market(instrument_id, quantity):
-   - Создает рыночный ордер на продажу указанного количества инструмента.
-   - Возвращает сообщение о результате выполнения.
-
-3. close_positions():
-   - Закрывает все открытые позиции.
-   - Возвращает сообщение о результате выполнения.
-
-4. money_account():
-   - Получает информацию о балансе счета.
-   - Возвращает текущий баланс счета.
-
-5. get_positions():
-   - Получает информацию об открытых позициях.
-   - Возвращает список открытых позиций.
-
-Пример использования:
-1. Отправка POST запроса на выполнение рыночного ордера на long с указанием количества.
-2. Отправка POST запроса на выполнение рыночного ордера на short с указанием количества.
-3. Отправка POST запроса на закрытие всех открытых позиций.
-4. Отправка GET запроса на получение информации о балансе счета.
-5. Отправка GET запроса на получение информации об открытых позициях.
-
-Эта стратегия предназначена для автоматической торговли и требует использования веб-сервиса Flask для приема HTTP запросов.
-"""
-
 import asyncio
 import sys
 import traceback
@@ -71,7 +21,7 @@ aevo = AevoClient(
     wallet_address=keys.wallet_address,
     api_key=keys.api_key,
     api_secret=keys.api_secret,
-    env="testnet",
+    env="mainnet",
 )
 
 # Проверка наличия ключа подписи
@@ -81,22 +31,14 @@ if not aevo.signing_key:
 
 
 async def buy_market(instrument_id, quantity):
-    """
-    Создает рыночный ордер на покупку.
-
-    Аргументы:
-    instrument_id: Идентификатор инструмента.
-    quantity: Количество для покупки.
-
-    Возвращает:
-    Словарь с сообщением о результате выполнения.
-    """
     try:
         logger.info("Creating market buy order...")
         response = aevo.rest_create_market_order(
             instrument_id=instrument_id,
             is_buy=True,
-            quantity=quantity,
+            # quantity=quantity,!!!!!!!!!
+            quantity=0.01,
+
         )
         logger.info("Market buy order request sent successfully")
         logger.info("Response: {}".format(response))
@@ -107,23 +49,13 @@ async def buy_market(instrument_id, quantity):
 
 
 async def sell_market(instrument_id, quantity):
-    """
-    Создает рыночный ордер на продажу.
-
-    Аргументы:
-    instrument_id: Идентификатор инструмента.
-    quantity: Количество для продажи.
-
-    Возвращает:
-    Словарь с сообщением о результате выполнения.
-    """
     try:
         logger.info("Creating market sell order...")
         response = aevo.rest_create_market_order(
             instrument_id=instrument_id,
             is_buy=False,
-            quantity=quantity,
-
+            # quantity=quantity,!!!!!!!!!
+            quantity=0.01,
         )
         logger.info("Market sell order request sent successfully")
         logger.info("Response: {}".format(response))
@@ -134,12 +66,6 @@ async def sell_market(instrument_id, quantity):
 
 
 async def close_positions():
-    """
-    Закрывает все открытые позиции.
-
-    Возвращает:
-    Словарь с сообщением о результате выполнения.
-    """
     try:
         logger.info("Fetching open positions...")
 
@@ -191,17 +117,6 @@ async def close_positions():
 
 
 async def buy_limit(instrument_id, quantity, limit_price):
-    """
-    Создает лимитный ордер на покупку.
-
-    Аргументы:
-    - instrument_id (str): Идентификатор инструмента.
-    - quantity (float): Количество для покупки.
-    - limit_price (float): Цена лимита.
-
-    Возвращает:
-    Словарь с результатом выполнения операции.
-    """
     try:
         logger.info("Creating limit buy order...")
         response = aevo.rest_create_order(
@@ -220,17 +135,6 @@ async def buy_limit(instrument_id, quantity, limit_price):
 
 
 async def sell_limit(instrument_id, quantity, limit_price):
-    """
-    Создает лимитный ордер на продажу.
-
-    Аргументы:
-    - instrument_id (str): Идентификатор инструмента.
-    - quantity (float): Количество для продажи.
-    - limit_price (float): Цена лимита.
-
-    Возвращает:
-    Словарь с результатом выполнения операции.
-    """
     try:
         logger.info("Creating limit sell order...")
         response = aevo.rest_create_order(
@@ -330,12 +234,6 @@ def money_account():
 
 @app.route('/positions', methods=['GET'])
 def get_positions():
-    """
-    Получает открытые позиции через веб-сервис.
-
-    Возвращает:
-    JSON-ответ с открытыми позициями или сообщением об ошибке.
-    """
     url = "https://api.aevo.xyz/positions"
 
     headers = {
@@ -357,3 +255,4 @@ def get_positions():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
+
